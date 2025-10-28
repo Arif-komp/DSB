@@ -1,11 +1,27 @@
+# pubspec.yaml
+
 dependencies:
   flutter:
     sdk: flutter
   
   # Dependencies yang diperlukan:
-  http: ^0.13.6 # Untuk komunikasi Apps Script (doGet/doPost)
-  provider: ^6.1.1 # Untuk state management
+  http: ^0.13.6        # Untuk komunikasi Apps Script (doGet/doPost)
+  provider: ^6.1.1     # Untuk state management
   shared_preferences: ^2.2.2 # Untuk menyimpan user aktif
-  # Tambahkan path gambar jika Anda menggunakannya, misal:
-  # assets:
-  #   - assets/depo.png
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+# Tambahkan baris ini jika Anda menggunakan font Poppins
+# flutter:
+#   uses-material-design: true
+#   fonts:
+#     - family: Poppins
+#       fonts:
+#         - asset: assets/fonts/Poppins-Regular.ttf
+#         - asset: assets/fonts/Poppins-SemiBold.ttf
+#           weight: 600
+#         - asset: assets/fonts/Poppins-Bold.ttf
+#           weight: 700
