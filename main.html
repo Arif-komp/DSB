@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEPO SUMBER BANGUNAN - INVENTORY</title>
+    <link rel="icon" href="depo.png" type="image/png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* CSS tambahan untuk Nama User Aktif (activeUserDisplay) */
+        .active-user {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            background-color: #e0f7fa; /* Warna latar belakang ringan */
+            color: #00838f;
+            border-radius: var(--border-radius-small);
+            font-weight: 700;
+            font-size: 0.95em;
+            border: 1px solid #b2ebf2;
+        }
+        .active-user span {
+            color: var(--primary-color);
+            font-weight: 800;
+        }
+        
+        /* KODE ASLI: Gaya untuk label user kecil di kiri atas */
+        .user-label {
+            text-align: left;
+            margin-top: -15px; 
+            margin-bottom: 25px; 
+            font-size: 0.75em;
+            font-weight: 600;
+            color: var(--secondary-color);
+            padding-left: 5px;
+        }
+        .user-label strong {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        /* AKHIR KODE ASLI */
+    </style>
+
+</head>
+<body class="mode-masuk"> 
+    <div class="container">
+        <div class="app-title">
+            <img id="appLogo" src="depo.png" alt="Logo Sumber Bangunan">
+            <div class="mode-status" id="modeStatus">INVENTORY - MASUK</div>
+        </div>
+
+        <div id="userLabel" class="user-label"></div>
+        
+        <form id="inventoryForm">
+            <div class="input-group">
+                <label><i class="fas fa-cubes"></i> Kategori Barang</label>
+                <div class="category-buttons">
+                    <button type="button" class="category-btn" data-category="BESI" id="btnBesi">
+                        <i class="fas fa-hammer"></i> BESI
+                    </button>
+                    <button type="button" class="category-btn" data-category="KERAMIK" id="btnKeramik">
+                        <i class="fas fa-couch"></i> KERAMIK
+                    </button>
+                    <button type="button" class="category-btn" data-category="LT 2" id="btnLt2">
+                        <i class="fas fa-layer-group"></i> LT 2
+                    </button>
+                    <button type="button" class="category-btn" data-category="GM" id="btnGm">
+                        <i class="fas fa-truck-loading"></i> GM
+                    </button>
+                </div>
+                <input type="hidden" id="kategori" name="kategori" required>
+            </div>
+
+            <div class="input-group">
+                <label for="jenisProduk"><i class="fas fa-stream"></i> Jenis Produk</label>
+                <select id="jenisProduk" name="jenisProduk" disabled required>
+                    <option value="">-- Pilih Kategori Dulu --</option>
+                </select>
+            </div>
+
+            <div class="input-group hidden" id="filterContainer">
+                <label for="filterSelect" id="filterLabel"><i class="fas fa-filter"></i> Filter Produk</label>
+                <div class="input-control">
+                    <select id="filterSelect" name="filterSelect" class="filter-select">
+                        <option value="">-- Pilih Filter --</option>
+                        </select>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="namaBarang"><i class="fas fa-box-open"></i> Nama Barang</label>
+                <div class="autocomplete-container input-control">
+                    <input type="text" id="namaBarang" name="namaBarang" placeholder="Ketik nama barang..." disabled required>
+                    <div id="autocomplete-list" class="autocomplete-items">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-group" id="lokasiInputGroup">
+                <label for="lokasi"><i class="fas fa-map-marker-alt"></i> Lokasi</label>
+                <div class="input-control">
+                    <input type="text" id="lokasi" name="lokasi" placeholder="Masukan Lokasi" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="jumlah"><i class="fas fa-sort-numeric-up-alt"></i> Jumlah</label>
+                 <div class="input-control">
+                    <input type="number" id="jumlah" name="jumlah" placeholder="Masukkan jumlah" required min="1">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="checker"><i class="fas fa-comment-dots"></i> Keterangan</label>
+                <div class="input-control">
+                    <input type="text" id="checker" name="checker" placeholder="Keterangan (Bukan Nama User)">
+                </div>
+            </div>
+            
+            <input type="hidden" id="formatSimpan" name="formatSimpan" value=""> 
+
+            <div class="submit-buttons">
+                <button type="button" id="masukButton" class="submit-btn" data-action="Masuk">
+                    <i class="fas fa-arrow-alt-circle-up"></i> MASUK
+                </button>
+                <button type="button" id="keluarButton" class="submit-btn hidden" data-action="Keluar">
+                    <i class="fas fa-arrow-alt-circle-down"></i> KELUAR
+                </button>
+            </div>
+
+            <p id="message" class="message"></p>
+        </form>
+        
+        <div id="app-footer-copyright" class="footer-copyright"></div> 
+    </div>
+    
+    <button id="fabToggle">
+        <i class="fas fa-exchange-alt"></i> Ganti ke KELUAR
+    </button>
+
+<script src="script.js"></script>
+</body>
+</html>
