@@ -17,7 +17,6 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Menggantikan logika login di index.html/script.js
   Future<bool> login(String username) async {
     if (username.trim().isEmpty) return false;
     
@@ -28,7 +27,6 @@ class UserProvider extends ChangeNotifier {
     return true;
   }
 
-  // Menggantikan fungsi JS: handleLogout()
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('activeUser');
