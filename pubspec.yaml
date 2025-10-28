@@ -1,0 +1,15 @@
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Untuk ikon dan widget dasar
+  cupertino_icons: ^1.0.6
+  
+  # Untuk koneksi ke Google Sheets API
+  http: ^1.2.1
+  
+  # Untuk state management (Opsional tapi direkomendasikan untuk aplikasi kompleks)
+  provider: ^6.1.2
+  
+  # Untuk menampilkan pesan (SnackBar)
+  fluttertoast: ^8.2.5
