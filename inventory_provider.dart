@@ -8,7 +8,7 @@ typedef ProductMap = Map<String, Map<String, List<String>>>;
 
 class InventoryProvider extends ChangeNotifier {
   // GANTI DENGAN SCRIPT_URL DEPLOYMENT APPS SCRIPT ANDA
-  static const String SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzDoa9mv0loGwHWCgzHrSUmD7fhaTwPd2Q6Z6hJ7hDTGVaS1d4avnfZ6-GW8y1A-5A/exec';
+  static const String SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxe9383u4mdfV475xdHX99RIe6DWsA31q4jW-SVsDwbK4bzwBCf3pbaUO9DuQcFtTtS/exec';
 
   // State Global
   ProductMap _inventoryDataCache = {};
