@@ -14,7 +14,6 @@ class InventoryScreen extends StatefulWidget {
 class _InventoryScreenState extends State<InventoryScreen> {
   // Controllers
   final _formKey = GlobalKey<FormState>();
-  // Menggunakan TextControllers untuk input form
   final _namaBarangController = TextEditingController(); 
   final _lokasiController = TextEditingController();
   final _jumlahController = TextEditingController();
@@ -29,23 +28,23 @@ class _InventoryScreenState extends State<InventoryScreen> {
     super.dispose();
   }
 
-  // Menggantikan fungsi JS: displayMessage()
   void _showSnackbar(String message, {bool isError = false, bool isLoading = false}) {
+    // Pastikan Snackbar hanya ditampilkan jika konteks tersedia
+    if (!mounted) return;
+    
     final snackBar = SnackBar(
       content: Text(
         message,
         style: TextStyle(color: isLoading ? Colors.black : Colors.white),
       ),
-      backgroundColor: isLoading ? Colors.yellow : (isError ? Colors.red : Colors.green),
+      backgroundColor: isLoading ? Colors.amber : (isError ? Colors.red : Colors.green),
       duration: isLoading ? const Duration(minutes: 1) : const Duration(seconds: 4),
     );
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  // Menggantikan fungsi JS: handleFormSubmit()
   void _submitForm(InventoryProvider provider, String activeUser) async {
-    // Memastikan Nama Barang sudah diisi (TextEditingController tidak terikat langsung ke Autocomplete)
     if (_namaBarangController.text.isEmpty) {
       _showSnackbar("Nama Barang wajib diisi.", isError: true);
       return;
@@ -53,7 +52,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
     
     if (!_formKey.currentState!.validate()) return;
     
-    // Pastikan Jenis Produk sudah dipilih
     if (provider.selectedJenisProduk == null) {
       _showSnackbar("Jenis Produk wajib diisi.", isError: true);
       return;
@@ -67,7 +65,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
     _showSnackbar("⏳ Mengirim data Barang ${provider.isMasukMode ? 'MASUK' : 'KELUAR'}...", isLoading: true);
 
-    // Kirim data
     final result = await provider.submitTransaction(
       activeUser: activeUser,
       namaBarang: _namaBarangController.text,
@@ -78,18 +75,15 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-    // Handle respons
     if (result['status'] == 'success') {
       _showSnackbar('✅ Data berhasil disimpan!', isError: false);
       
-      // PENGOSONGAN FORM SETELAH AMBIL DATA (Logika yang sama di JS)
+      // Reset Form
       _jumlahController.clear();
       _keteranganController.clear();
       _lokasiController.clear();
       _namaBarangController.clear();
-      
-      // Reset Kategori, yang akan mereset Jenis Produk dan Autocomplete Cache
-      provider.setSelectedCategory(null); 
+      provider.setSelectedCategory(null); // Reset Kategori
 
     } else {
       _showSnackbar('❌ Gagal menyimpan data: ${result['error']}', isError: true);
@@ -98,52 +92,38 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Ambil user aktif dari UserProvider
     final userProvider = Provider.of<UserProvider>(context);
     final activeUser = userProvider.activeUser ?? 'N/A';
     
-    // Jika tidak ada user, redirect ke halaman login (asumsi telah dibuat)
     if (userProvider.activeUser == null) {
-        // Logika untuk kembali ke login (misalnya: Navigator.pushReplacementNamed(context, '/login');)
-        // Untuk demo ini, kita akan menggunakan Text sederhana.
+        // Jika tidak login, kembali ke LoginScreen (diatur di main.dart)
         return const Scaffold(body: Center(child: Text("Sesi berakhir. Silakan login kembali.")));
     }
 
-
     return Consumer<InventoryProvider>(
       builder: (context, provider, child) {
-        // Tema warna dinamis (Menggantikan body.mode-masuk/mode-keluar)
         final modeColor = provider.isMasukMode ? Colors.green[700] : Colors.red[700];
 
         return Scaffold(
           backgroundColor: Colors.grey[50],
 
-          // AppBar Disesuaikan (Menggantikan .app-title)
           appBar: AppBar(
             automaticallyImplyLeading: false, 
             backgroundColor: modeColor,
-            title: Row(
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Ganti dengan Image.asset('assets/depo.png') jika Anda punya
-                const Icon(Icons.inventory_2, color: Colors.white), 
-                const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('DEPO SUMBER BANGUNAN', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800)),
-                    Text(
-                      'INVENTORY - ${provider.isMasukMode ? 'MASUK' : 'KELUAR'}',
-                      style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
-                    ),
-                  ],
+                const Text('DEPO SUMBER BANGUNAN', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800)),
+                Text(
+                  'INVENTORY - ${provider.isMasukMode ? 'MASUK' : 'KELUAR'}',
+                  style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
             actions: [
-              // Tombol LOGOUT (Menggantikan logoutButton di JS)
               IconButton(
                 icon: const Icon(Icons.logout, color: Colors.white),
-                onPressed: userProvider.logout, // Panggil fungsi logout
+                onPressed: userProvider.logout, 
                 tooltip: 'Ganti User',
               ),
             ],
@@ -162,92 +142,86 @@ class _InventoryScreenState extends State<InventoryScreen> {
               ))
             : SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      // User Aktif (Menggantikan .user-label di JS)
-                      _buildActiveUserDisplay(activeUser, modeColor),
-                      
-                      // Kategori (Menggantikan .category-buttons)
-                      _buildCategoryButtons(provider, modeColor),
-                      const SizedBox(height: 20),
+                child: Center(
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 500), // Batas lebar untuk web
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          _buildActiveUserDisplay(activeUser, modeColor),
+                          _buildCategoryButtons(provider, modeColor),
+                          const SizedBox(height: 20),
 
-                      // Jenis Produk (Dropdown)
-                      _buildDropdownInput(
-                        label: 'Jenis Produk',
-                        icon: Icons.stream,
-                        value: provider.selectedJenisProduk,
-                        items: provider.jenisProdukOptions,
-                        onChanged: provider.setSelectedJenisProduk,
-                        enabled: provider.selectedCategory != null,
-                      ),
-                      const SizedBox(height: 20),
-                      
-                      // Nama Barang (Autocomplete/Live Search)
-                      _buildAutocompleteInput(provider),
-                      const SizedBox(height: 20),
-
-                      // Lokasi (Visibility)
-                      Visibility(
-                        visible: provider.isMasukMode, // Logika Lokasi wajib diisi saat Masuk
-                        child: _buildTextInput(
-                          controller: _lokasiController,
-                          label: 'Lokasi',
-                          icon: Icons.location_on,
-                          keyboardType: TextInputType.text,
-                          required: provider.isMasukMode,
-                          enabled: provider.selectedJenisProduk != null,
-                        ),
-                      ),
-                      if (!provider.isMasukMode) const SizedBox(height: 20), // Jarak tambahan jika Lokasi disembunyikan
-
-                      // Jumlah
-                      _buildTextInput(
-                        controller: _jumlahController,
-                        label: 'Jumlah',
-                        icon: Icons.onetwothree,
-                        keyboardType: TextInputType.number,
-                        required: true,
-                        enabled: provider.selectedJenisProduk != null,
-                      ),
-                      
-                      // Keterangan (Checker/Keterangan di JS)
-                      _buildTextInput(
-                        controller: _keteranganController,
-                        label: 'Keterangan',
-                        icon: Icons.comment,
-                        keyboardType: TextInputType.text,
-                        required: false,
-                        enabled: provider.selectedJenisProduk != null,
-                      ),
-                      const SizedBox(height: 30),
-
-                      // Submit Buttons
-                      _buildSubmitButtons(provider, activeUser, modeColor),
-                      
-                      // Footer
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20.0),
-                        child: Center(
-                          child: Text(
-                            '© ${DateTime.now().year} Depo Sumber Bangunan', 
-                            style: TextStyle(fontSize: 11, color: Colors.grey[600])
+                          _buildDropdownInput(
+                            label: 'Jenis Produk',
+                            icon: Icons.stream,
+                            value: provider.selectedJenisProduk,
+                            items: provider.jenisProdukOptions,
+                            onChanged: provider.setSelectedJenisProduk,
+                            enabled: provider.selectedCategory != null,
                           ),
-                        ),
+                          const SizedBox(height: 20),
+                          
+                          _buildAutocompleteInput(provider),
+                          const SizedBox(height: 20),
+
+                          Visibility(
+                            visible: provider.isMasukMode, 
+                            child: _buildTextInput(
+                              controller: _lokasiController,
+                              label: 'Lokasi',
+                              icon: Icons.location_on,
+                              keyboardType: TextInputType.text,
+                              required: provider.isMasukMode,
+                              enabled: provider.selectedJenisProduk != null,
+                            ),
+                          ),
+                          if (!provider.isMasukMode) const SizedBox(height: 20), 
+
+                          _buildTextInput(
+                            controller: _jumlahController,
+                            label: 'Jumlah',
+                            icon: Icons.onetwothree,
+                            keyboardType: TextInputType.number,
+                            required: true,
+                            enabled: provider.selectedJenisProduk != null,
+                          ),
+                          
+                          _buildTextInput(
+                            controller: _keteranganController,
+                            label: 'Keterangan',
+                            icon: Icons.comment,
+                            keyboardType: TextInputType.text,
+                            required: false,
+                            enabled: provider.selectedJenisProduk != null,
+                          ),
+                          const SizedBox(height: 30),
+
+                          _buildSubmitButtons(provider, activeUser, modeColor),
+                          
+                          Padding(
+                            padding: const EdgeInsets.only(top: 20.0),
+                            child: Center(
+                              child: Text(
+                                '© ${DateTime.now().year} Depo Sumber Bangunan', 
+                                style: TextStyle(fontSize: 11, color: Colors.grey[600])
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
           
-          // FAB Toggle Mode (Menggantikan fabToggle di JS)
           floatingActionButton: FloatingActionButton.extended(
             onPressed: provider.toggleMode,
             label: Text('Ganti ke ${provider.isMasukMode ? 'KELUAR' : 'MASUK'}'),
             icon: const Icon(Icons.swap_horiz),
-            backgroundColor: provider.isMasukMode ? Colors.red : Colors.green, // Warna dinamis
+            backgroundColor: provider.isMasukMode ? Colors.red : Colors.green, 
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         );
@@ -255,7 +229,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // --- Helper Widgets ---
+  // --- Helper Widgets (Sama dengan kode sebelumnya) ---
 
   Widget _buildActiveUserDisplay(String activeUser, Color? modeColor) {
     return Container(
@@ -311,7 +285,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // Custom Dropdown Widget
   Widget _buildDropdownInput({
     required String label,
     required IconData icon,
@@ -338,24 +311,22 @@ class _InventoryScreenState extends State<InventoryScreen> {
       }).toList(),
       onChanged: enabled ? onChanged : null,
       validator: (v) {
-        if (!enabled) return null; // Tidak perlu validasi jika disabled
+        if (!enabled) return null; 
         return (v == null || v.isEmpty) ? '$label wajib dipilih.' : null;
       },
     );
   }
 
-  // Custom Autocomplete Widget
   Widget _buildAutocompleteInput(InventoryProvider provider) {
     return Autocomplete<String>(
-      key: ValueKey(provider.selectedJenisProduk), // Key untuk mereset state Autocomplete saat Jenis Produk berubah
+      key: ValueKey(provider.selectedJenisProduk), 
       fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
-        // Sinkronisasi controller utama dengan controller internal Autocomplete
         _namaBarangController.text = textEditingController.text;
         
         return TextFormField(
           controller: textEditingController,
           focusNode: focusNode,
-          textCapitalization: TextCapitalization.characters, // Uppercase
+          textCapitalization: TextCapitalization.characters, 
           decoration: InputDecoration(
             labelText: 'Nama Barang',
             prefixIcon: const Icon(Icons.box_open, color: Colors.grey),
@@ -364,27 +335,24 @@ class _InventoryScreenState extends State<InventoryScreen> {
           ),
           onFieldSubmitted: (value) => onFieldSubmitted(),
           validator: (value) => (value == null || value.isEmpty) ? 'Nama Barang wajib diisi.' : null,
-          enabled: provider.selectedJenisProduk != null, // Disabled jika Jenis Produk belum dipilih
+          enabled: provider.selectedJenisProduk != null, 
         );
       },
       optionsBuilder: (TextEditingValue textEditingValue) {
         return provider.filterSuggestions(textEditingValue.text);
       },
       onSelected: (String selection) {
-        // Update controller saat item dipilih
         _namaBarangController.text = selection;
-        // Opsional: Focus ke input selanjutnya
         FocusScope.of(context).nextFocus();
       },
-      // Menggantikan fungsi JS Highlighting
       optionsViewBuilder: (context, onSelected, options) {
           return Align(
               alignment: Alignment.topLeft,
               child: Material(
                   elevation: 4.0,
                   child: Container(
-                      width: MediaQuery.of(context).size.width - 40, // Lebar sesuai form
-                      constraints: const BoxConstraints(maxHeight: 200),
+                      width: MediaQuery.of(context).size.width * 0.9, // Ukuran lebar autocomplete di Web
+                      constraints: const BoxConstraints(maxWidth: 500, maxHeight: 200),
                       child: ListView.builder(
                           padding: EdgeInsets.zero,
                           shrinkWrap: true,
@@ -398,7 +366,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                                       padding: const EdgeInsets.all(10),
                                       child: RichText(
                                           text: TextSpan(
-                                              style: DefaultTextStyle.of(context).style,
+                                              style: DefaultTextStyle.of(context).style.copyWith(fontSize: 14),
                                               children: _buildHighlightedText(option, query),
                                           ),
                                       ),
@@ -413,14 +381,13 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // Menggantikan logika JS Highlighting
   List<TextSpan> _buildHighlightedText(String text, String query) {
     if (query.isEmpty) return [TextSpan(text: text)];
 
     final List<TextSpan> spans = [];
     final searchTokens = query.split(RegExp(r'\s+')).where((t) => t.isNotEmpty).toList();
 
-    // Untuk kesederhanaan, kita hanya highlight token pertama yang ditemukan
+    // Highlighting sederhana
     String currentText = text;
     final String token = searchTokens.isNotEmpty ? searchTokens[0] : '';
     final int index = currentText.indexOf(token);
@@ -432,14 +399,13 @@ class _InventoryScreenState extends State<InventoryScreen> {
     spans.add(TextSpan(text: currentText.substring(0, index)));
     spans.add(TextSpan(
       text: currentText.substring(index, index + token.length),
-      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue), // Highlight style
+      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue), 
     ));
     spans.add(TextSpan(text: currentText.substring(index + token.length)));
 
     return spans;
   }
 
-  // Input Teks umum
   Widget _buildTextInput({
     required TextEditingController controller,
     required String label,
@@ -453,7 +419,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
       child: TextFormField(
         controller: controller,
         enabled: enabled,
-        textCapitalization: TextCapitalization.characters, // Uppercase (setupUppercaseListeners di JS)
+        textCapitalization: TextCapitalization.characters, 
         keyboardType: keyboardType,
         decoration: InputDecoration(
           labelText: label,
@@ -471,13 +437,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // Tombol Submit (Menggantikan masukButton/keluarButton di JS)
   Widget _buildSubmitButtons(InventoryProvider provider, String activeUser, Color? modeColor) {
     final bool canSubmit = provider.selectedJenisProduk != null;
     final Color buttonColor = provider.isMasukMode ? Colors.green : Colors.red;
 
     return Center(
-      child: Container(
+      child: SizedBox(
         width: double.infinity,
         child: ElevatedButton.icon(
           style: ElevatedButton.styleFrom(
@@ -500,7 +465,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // Helper untuk Icon Kategori
   IconData _getCategoryIcon(String category) {
     switch (category.toUpperCase()) {
       case 'BESI': return Icons.gavel;
