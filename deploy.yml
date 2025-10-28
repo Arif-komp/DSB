@@ -1,0 +1,34 @@
+# .github/workflows/deploy.yml
+
+name: Deploy Flutter Web to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main # Ganti dengan nama cabang utama Anda (master atau main)
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Setup Flutter (Pastikan Anda menggunakan versi Flutter yang kompatibel)
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x.x' # Ganti dengan versi Flutter Anda
+
+      # 1. Build Web
+      - name: Flutter build web
+        run: flutter build web --web-renderer html --base-href /DSB/ # Ganti /repo_name/
+      
+      # 2. Deploy ke GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
+          publish_branch: gh-pages # Target branch untuk GitHub Pages
