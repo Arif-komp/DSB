@@ -7,15 +7,15 @@ import 'package:http/http.dart' as http;
 typedef ProductMap = Map<String, Map<String, List<String>>>;
 
 class InventoryProvider extends ChangeNotifier {
-  // SCRIPT_URL HARUS mengarah ke URL deployment Apps Script (doPost) Anda.
+  // GANTI DENGAN SCRIPT_URL DEPLOYMENT APPS SCRIPT ANDA
   static const String SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzDoa9mv0loGwHWCgzHrSUmD7fhaTwPd2Q6Z6hJ7hDTGVaS1d4avnfZ6-GW8y1A-5A/exec';
 
   // State Global
   ProductMap _inventoryDataCache = {};
   String? _selectedCategory;
   String? _selectedJenisProduk;
-  List<String> _productNamesCache = []; // productNamesCache di JS
-  bool _isMasukMode = true; // currentMode di JS
+  List<String> _productNamesCache = []; 
+  bool _isMasukMode = true; 
   bool _isLoadingData = false;
   String? _errorMessage;
 
@@ -33,13 +33,11 @@ class InventoryProvider extends ChangeNotifier {
     if (_selectedCategory == null || !_inventoryDataCache.containsKey(_selectedCategory)) {
       return [];
     }
-    // Sort keys before returning
     final options = _inventoryDataCache[_selectedCategory]!.keys.toList();
     options.sort();
     return options;
   }
 
-  // Constructor
   InventoryProvider() {
     fetchProductData();
   }
@@ -51,17 +49,15 @@ class InventoryProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Menggunakan GET request ke Apps Script dengan parameter action=getProducts
+      // Menggunakan GET request ke Apps Script
       final response = await http.get(Uri.parse('$SCRIPT_URL?action=getProducts'));
 
       if (response.statusCode == 200) {
-        // Karena Apps Script JSONP tidak diperlukan di Flutter, kita hanya parsing JSON
         final Map<String, dynamic> result = json.decode(response.body);
 
         if (result['status'] == 'ok' && result['data'] != null) {
-          // Menggantikan transformDataToUppercase(response.data)
           _inventoryDataCache = _transformDataToUppercase(result['data'] as Map<String, dynamic>);
-          _errorMessage = null; // Reset error
+          _errorMessage = null; 
         } else {
           _errorMessage = 'Gagal memuat data produk: ${result['error']}';
         }
@@ -76,7 +72,6 @@ class InventoryProvider extends ChangeNotifier {
     }
   }
 
-  // Menggantikan fungsi JS: transformDataToUppercase()
   ProductMap _transformDataToUppercase(Map<String, dynamic> data) {
     final Map<String, Map<String, List<String>>> transformed = {};
     data.forEach((catKey, typeMap) {
@@ -95,7 +90,6 @@ class InventoryProvider extends ChangeNotifier {
     return transformed;
   }
 
-  // Menggantikan logika Category Button Clicks
   void setSelectedCategory(String? category) {
     _selectedCategory = category;
     _selectedJenisProduk = null;
@@ -103,20 +97,17 @@ class InventoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Menggantikan logika jenisProdukSelect.addEventListener('change')
   void setSelectedJenisProduk(String? jenis) {
     _selectedJenisProduk = jenis;
     _productNamesCache = [];
 
     if (jenis != null && _selectedCategory != null) {
       final rawList = _inventoryDataCache[_selectedCategory]![jenis] ?? [];
-      // Menggantikan cleanProductList()
       _productNamesCache = _cleanProductList(rawList);
     }
     notifyListeners();
   }
 
-  // Menggantikan fungsi JS: cleanProductList()
   List<String> _cleanProductList(List<String> productList) {
     const excludedKeywords = [
       'STP/', 'DBL/', 'DEL/', 'F/', 'D/',
@@ -134,16 +125,13 @@ class InventoryProvider extends ChangeNotifier {
     if (query.isEmpty) return const Iterable.empty();
 
     final upperQuery = query.toUpperCase().trim();
-    // Memisahkan query berdasarkan spasi (seperti di JS: split(/\s+/))
     final searchTokens = upperQuery.split(RegExp(r'\s+')).where((t) => t.isNotEmpty).toList();
 
     return _productNamesCache.where((name) {
-      // Logika flexibleSearch: memastikan setiap token ada di nama produk
       return searchTokens.every((token) => name.contains(token));
     }).take(10);
   }
 
-  // Menggantikan fungsi JS: toggleMode() dan updateUIMode()
   void toggleMode() {
     _isMasukMode = !_isMasukMode;
     notifyListeners();
@@ -161,18 +149,19 @@ class InventoryProvider extends ChangeNotifier {
       return {'status': 'error', 'error': 'Kategori atau Jenis Produk belum dipilih.'};
     }
     
-    // Logika validasi Lokasi (hanya wajib saat Masuk)
+    // Validasi Lokasi (hanya wajib saat Masuk)
     if (lokasi.isEmpty && _isMasukMode) {
       return {'status': 'error', 'error': 'Lokasi wajib diisi untuk transaksi Masuk.'};
     }
 
     final dataToSend = {
+      'action': 'submit', // Tambahkan action eksplisit untuk Apps Script
       'kategori': _selectedCategory!.toUpperCase(),
       'jenisProduk': _selectedJenisProduk!.toUpperCase(),
       'namaBarang': namaBarang.toUpperCase(),
-      'checker': activeUser, // User Aktif
-      'lokasi': lokasi.toUpperCase(), // Lokasi
-      'formatSimpan': keterangan.toUpperCase(), // Keterangan (sekarang sebagai formatSimpan di Apps Script)
+      'checker': activeUser, 
+      'lokasi': lokasi.toUpperCase(), 
+      'formatSimpan': keterangan.toUpperCase(), 
       'masukIn': _isMasukMode ? jumlah.toString() : '',
       'keluarOut': !_isMasukMode ? jumlah.toString() : '',
     };
@@ -181,13 +170,13 @@ class InventoryProvider extends ChangeNotifier {
       final response = await http.post(
         Uri.parse(SCRIPT_URL),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: dataToSend, // http.post otomatis melakukan url-encoding (menggantikan urlEncodedData di JS)
+        body: dataToSend, 
       );
 
       final result = json.decode(response.body);
       return result;
     } catch (e) {
-      return {'status': 'error', 'error': 'Terjadi kesalahan jaringan. Cek koneksi Apps Script. $e'};
+      return {'status': 'error', 'error': 'Terjadi kesalahan jaringan/Apps Script. $e'};
     }
   }
 }
