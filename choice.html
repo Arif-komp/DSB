@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <base href="/DSB/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pilih Transaksi - Inventory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00897b; /* Hijau Primary */
+            --secondary-color: #ffb300; /* Kuning Secondary */
+            --background-color: #f0f4f8; /* Latar belakang cerah */
+            --card-background: #ffffff; /* Latar belakang card */
+            --text-color: #343a40; /* Teks gelap */
+            --border-radius: 12px;
+            --shadow-light: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif; background-color: var(--background-color);
+            color: var(--text-color); display: flex; justify-content: center;
+            align-items: center; min-height: 100vh; padding: 20px;
+        }
+        .choice-container {
+            width: 100%; max-width: 450px; background-color: var(--card-background);
+            padding: 40px; border-radius: var(--border-radius); box-shadow: var(--shadow-light);
+            text-align: center;
+        }
+        .choice-container h1 { color: var(--primary-color); margin-bottom: 10px; font-weight: 700; font-size: 1.8rem; }
+        .choice-container p { margin-bottom: 30px; font-size: 1.1rem; color: #555; }
+
+        .button-group {
+            display: flex;
+            gap: 20px;
+            flex-direction: column;
+        }
+
+        .btn-choice {
+            padding: 18px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+        }
+        .btn-choice i {
+            margin-right: 15px;
+            font-size: 1.5rem;
+        }
+
+        #btnMasuk {
+            background-color: #4CAF50; /* Hijau Masuk */
+            color: white;
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        #btnMasuk:hover { background-color: #45a049; transform: translateY(-2px); }
+
+        #btnKeluar {
+            background-color: #f44336; /* Merah Keluar */
+            color: white;
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+        }
+        #btnKeluar:hover { background-color: #da342a; transform: translateY(-2px); }
+
+        .footer-text { margin-top: 30px; font-size: 0.8rem; color: var(--text-color); }
+
+        /* Media Queries for Mobile */
+        @media (max-width: 500px) {
+            .choice-container { padding: 30px 20px; }
+            .button-group { gap: 15px; }
+            .btn-choice { font-size: 1rem; padding: 15px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="choice-container">
+        <h1>PILIH JENIS TRANSAKSI</h1>
+        <p>Silahkan pilih operasi yang akan Anda lakukan:</p>
+        
+        <div class="button-group">
+            <button type="button" class="btn-choice" id="btnMasuk" data-mode="Masuk">
+                <i class="fas fa-arrow-alt-circle-up"></i> Barang MASUK
+            </button>
+            <button type="button" class="btn-choice" id="btnKeluar" data-mode="Keluar">
+                <i class="fas fa-arrow-alt-circle-down"></i> Barang KELUAR
+            </button>
+        </div>
+
+        <p class="footer-text">Inventory App &copy; Depo Sumber Bangunan</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedUser = localStorage.getItem('activeUser');
+            
+            if (!storedUser) {
+                // Jika user belum login, kembali ke halaman login
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const buttons = document.querySelectorAll('.btn-choice');
+            const HOME_PAGE_URL = 'main.html';
+
+            buttons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const mode = e.currentTarget.getAttribute('data-mode');
+                    
+                    if (mode) {
+                        // 1. Simpan pilihan mode transaksi ke Local Storage
+                        localStorage.setItem('transactionMode', mode);
+                        
+                        // 2. Arahkan ke halaman utama
+                        window.location.href = HOME_PAGE_URL;
+                    }
+                });
+            });
+            
+            // Logika untuk membersihkan mode jika user secara manual kembali ke halaman ini
+            // Agar jika dibuka lagi, user diminta memilih mode
+            localStorage.removeItem('transactionMode');
+        });
+    </script>
+
+</body>
+</html>
