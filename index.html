@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <!-- BASE HREF SANGAT PENTING UNTUK GITHUB PAGES -->
     <base href="/DSB/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -169,9 +170,13 @@
         document.addEventListener('DOMContentLoaded', () => {
             const userNameInput = document.getElementById('userName');
             const loginForm = document.getElementById('loginForm');
-            const HOME_PAGE_URL = 'main.html'; // Tentukan URL halaman utama Anda
+            // Ganti ini jika halaman utama Anda tidak bernama main.html
+            const HOME_PAGE_URL = 'main.html'; 
 
             // 🔥 START: LOGIKA AUTO-REDIRECT 🔥
+            // Perhatian: Ketika menggunakan base href, window.location.href akan otomatis 
+            // menavigasi ke jalur yang benar. Contoh: 'main.html' akan menjadi
+            // 'https://arief-komp.github.io/DSB/main.html'
             const storedUser = localStorage.getItem('activeUser');
             if (storedUser) {
                 // Jika user sudah login, langsung arahkan ke halaman utama
@@ -194,8 +199,9 @@
                 // Ambil nilai dan ubah ke UPPERCASE sebelum disimpan
                 const userName = userNameInput.value.trim().toUpperCase();
 
+                // Ganti alert() dengan modal/dialog kustom di produksi
                 if (!userName) {
-                    alert('Nama User tidak boleh kosong!');
+                    console.error('Nama User tidak boleh kosong!');
                     return;
                 }
 
