@@ -1,11 +1,9 @@
-# .github/workflows/deploy.yml
-
 name: Deploy Flutter Web to GitHub Pages
 
 on:
   push:
     branches:
-      - main # Ganti dengan nama cabang utama Anda (master atau main)
+      - main # Pastikan ini adalah cabang utama Anda
 
 jobs:
   build_and_deploy:
@@ -15,15 +13,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Setup Flutter (Pastikan Anda menggunakan versi Flutter yang kompatibel)
+      # Setup Flutter (Menggunakan versi stabil terbaru untuk kompatibilitas)
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.x.x' # Ganti dengan versi Flutter Anda
+          # Ganti dengan versi Flutter yang Anda gunakan, misal 3.16.x
+          flutter-version: '3.16.x' 
 
-      # 1. Build Web
+      # 1. Build Web dengan Base Href yang Diperbarui
       - name: Flutter build web
-        run: flutter build web --web-renderer html --base-href /DSB/ # Ganti /repo_name/
+        # Base Href diatur sesuai dengan nama repositori Anda
+        run: flutter build web --web-renderer html --base-href /DSB/ 
       
       # 2. Deploy ke GitHub Pages
       - name: Deploy to GitHub Pages
